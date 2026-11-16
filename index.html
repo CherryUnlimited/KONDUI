@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>KONDUI — Prototype de la plateforme</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#0F2A3D; --navy2:#173B55; --amber:#F5A623; --amber-soft:#FFF4E0;
+  --bg:#F3F5F7; --card:#FFFFFF; --ink:#13202B; --muted:#5D6B78; --line:#E2E7EC;
+  --green:#1E9E61; --green-soft:#E6F6EE; --red:#D64545; --red-soft:#FCEBEB; --blue:#2F6FDE;
+  --r:14px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:Manrope,system-ui,sans-serif;font-size:14px}
+button{font-family:inherit;cursor:pointer}
+input,select,textarea{font-family:inherit;font-size:14px}
+.topbar{position:sticky;top:0;z-index:20;background:var(--navy);color:#fff;display:flex;align-items:center;gap:16px;padding:10px 20px;flex-wrap:wrap}
+.logo{font-weight:800;letter-spacing:.5px;font-size:20px;display:flex;align-items:center;gap:8px}
+.logo .dot{width:26px;height:26px;border-radius:8px;background:var(--amber);display:grid;place-items:center;color:var(--navy);font-size:15px}
+.logo small{font-weight:500;font-size:12px;opacity:.7;letter-spacing:0}
+.switch{display:flex;background:var(--navy2);border-radius:999px;padding:4px;margin-left:auto}
+.switch button{border:0;background:transparent;color:#cfd9e2;padding:8px 16px;border-radius:999px;font-weight:600}
+.switch button.on{background:var(--amber);color:var(--navy)}
+.proto{font-size:12px;opacity:.75}
+main{padding:24px 16px 48px}
+.view{display:none}.view.on{display:block}
+/* phone */
+.stage{display:flex;gap:32px;justify-content:center;align-items:flex-start;flex-wrap:wrap}
+.phone{width:380px;max-width:100%;height:760px;background:#fff;border-radius:36px;border:10px solid #0b1a26;box-shadow:0 20px 50px rgba(15,42,61,.25);overflow:hidden;display:flex;flex-direction:column;position:relative}
+.phone-status{height:28px;display:flex;justify-content:space-between;align-items:center;padding:0 22px;font-size:12px;font-weight:700;color:var(--ink);flex:none}
+.screen{flex:1;overflow-y:auto;position:relative}
+.side{max-width:360px;color:var(--muted);line-height:1.55}
+.side h2{color:var(--ink);font-size:20px;margin:8px 0}
+.side .tip{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:14px 16px;margin-top:14px}
+.side .tip b{color:var(--ink)}
+/* app ui */
+.pad{padding:16px 18px}
+.hello{font-size:13px;color:var(--muted)}
+h1.t{font-size:22px;margin:2px 0 14px;font-weight:800}
+h3.t{font-size:15px;margin:18px 0 10px;font-weight:700}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.fcard{border:1px solid var(--line);border-radius:var(--r);padding:12px;background:#fff;text-align:left;transition:.15s}
+.fcard:hover{border-color:var(--amber);box-shadow:0 4px 14px rgba(245,166,35,.18)}
+.fcard .ic{width:34px;height:34px;border-radius:10px;background:var(--amber-soft);display:grid;place-items:center;font-size:18px;margin-bottom:8px}
+.fcard b{display:block;font-size:13.5px}
+.fcard span{font-size:12px;color:var(--muted)}
+.fcard.wide{grid-column:1/-1;display:flex;gap:12px;align-items:center}
+.fcard.wide .ic{margin:0}
+.btn{border:0;border-radius:12px;padding:13px 16px;font-weight:700;font-size:14.5px;width:100%;background:var(--navy);color:#fff}
+.btn.amber{background:var(--amber);color:var(--navy)}
+.btn.ghost{background:#fff;color:var(--navy);border:1.5px solid var(--line)}
+.btn.red{background:var(--red);color:#fff}
+.btn.green{background:var(--green);color:#fff}
+.btn.sm{padding:8px 12px;font-size:13px;width:auto;border-radius:10px}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.row{display:flex;gap:10px;align-items:center}
+.field{margin-bottom:12px}
+.field label{display:block;font-size:12px;font-weight:700;color:var(--muted);margin-bottom:5px;text-transform:uppercase;letter-spacing:.3px}
+.field input,.field select,.field textarea{width:100%;padding:11px 12px;border:1.5px solid var(--line);border-radius:11px;background:#fff;color:var(--ink)}
+.field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--amber)}
+.seg{display:flex;background:var(--bg);border-radius:11px;padding:3px}
+.seg button{flex:1;border:0;background:transparent;padding:9px;border-radius:9px;font-weight:600;color:var(--muted)}
+.seg button.on{background:#fff;color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.1)}
+.back{border:0;background:none;font-size:14px;font-weight:700;color:var(--navy);padding:0;margin-bottom:8px}
+.est{background:var(--navy);color:#fff;border-radius:var(--r);padding:14px 16px;margin:14px 0}
+.est small{opacity:.7;font-size:12px}
+.est .p{font-size:26px;font-weight:800;color:var(--amber)}
+.est .d{font-size:12px;opacity:.8;margin-top:4px}
+.pills{display:flex;flex-wrap:wrap;gap:6px}
+.pill{border:1.5px solid var(--line);background:#fff;border-radius:999px;padding:7px 11px;font-size:12.5px;font-weight:600;color:var(--ink)}
+.pill.on{border-color:var(--amber);background:var(--amber-soft)}
+.tabbar{display:flex;border-top:1px solid var(--line);background:#fff;flex:none}
+.tabbar button{flex:1;border:0;background:none;padding:10px 0 12px;font-size:11px;font-weight:600;color:var(--muted)}
+.tabbar button i{display:block;font-style:normal;font-size:18px;margin-bottom:2px}
+.tabbar button.on{color:var(--navy)}
+.badge{display:inline-block;padding:3px 9px;border-radius:999px;font-size:11.5px;font-weight:700;background:var(--bg);color:var(--muted);white-space:nowrap}
+.badge.green{background:var(--green-soft);color:var(--green)}
+.badge.amber{background:var(--amber-soft);color:#A76A00}
+.badge.red{background:var(--red-soft);color:var(--red)}
+.badge.blue{background:#E8F0FD;color:var(--blue)}
+.card{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:14px}
+.drv{display:flex;gap:12px;align-items:center}
+.avatar{width:46px;height:46px;border-radius:50%;background:var(--navy);color:var(--amber);display:grid;place-items:center;font-weight:800;flex:none}
+.muted{color:var(--muted)}
+.small{font-size:12px}
+.mapbox{border-radius:var(--r);overflow:hidden;border:1px solid var(--line);background:#EAF2E3}
+.mapbox svg{display:block;width:100%;height:auto}
+.stepper{display:flex;gap:4px;margin:10px 0 4px}
+.stepper div{flex:1;height:5px;border-radius:5px;background:var(--line)}
+.stepper div.on{background:var(--amber)}
+.spinner{width:56px;height:56px;border-radius:50%;border:5px solid var(--amber-soft);border-top-color:var(--amber);animation:spin 1s linear infinite;margin:30px auto 16px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.pulse{animation:pulse 1.4s ease-in-out infinite}
+@keyframes pulse{50%{opacity:.35}}
+.stars{display:flex;gap:6px;justify-content:center;font-size:34px}
+.stars button{border:0;background:none;color:#D5DBE1;padding:0;font-size:34px}
+.stars button.on{color:var(--amber)}
+.check{display:flex;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line);font-size:13.5px}
+.check input{width:18px;height:18px;accent-color:var(--amber)}
+.list-item{display:flex;justify-content:space-between;gap:10px;padding:12px 0;border-bottom:1px solid var(--line)}
+.list-item:last-child{border-bottom:0}
+.sos{position:absolute;right:16px;bottom:16px;width:58px;height:58px;border-radius:50%;background:var(--red);color:#fff;border:0;font-weight:800;box-shadow:0 6px 18px rgba(214,69,69,.45)}
+.progress{height:8px;background:var(--line);border-radius:8px;overflow:hidden}
+.progress div{height:100%;background:var(--amber);transition:width .3s}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(20px);background:var(--navy);color:#fff;padding:12px 18px;border-radius:12px;font-weight:600;opacity:0;transition:.25s;z-index:99;max-width:90vw;box-shadow:0 10px 30px rgba(0,0,0,.25)}
+.toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+.modal{position:absolute;inset:0;background:rgba(15,42,61,.55);display:grid;place-items:center;z-index:5;padding:20px}
+.modal .card{width:100%}
+/* driver */
+.dhead{background:var(--navy);color:#fff;padding:16px 18px 18px}
+.dhead .gain{font-size:26px;font-weight:800;color:var(--amber)}
+.toggle{display:flex;align-items:center;gap:10px;background:var(--navy2);border-radius:999px;padding:6px 6px 6px 14px;font-weight:700;font-size:13px}
+.toggle .sw{width:46px;height:26px;border-radius:999px;background:#4b6276;position:relative;border:0}
+.toggle .sw::after{content:"";position:absolute;width:20px;height:20px;border-radius:50%;background:#fff;top:3px;left:3px;transition:.2s}
+.toggle .sw.on{background:var(--green)}
+.toggle .sw.on::after{left:23px}
+.request{border:2px solid var(--amber);background:var(--amber-soft)}
+.countdown{font-weight:800;color:#A76A00}
+/* admin */
+.admin{max-width:1180px;margin:0 auto}
+.kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:18px}
+.kpi{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:14px 16px}
+.kpi small{color:var(--muted);font-weight:600;font-size:12px}
+.kpi b{display:block;font-size:24px;font-weight:800;margin-top:4px}
+.atabs{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap}
+.atabs button{border:1px solid var(--line);background:#fff;border-radius:10px;padding:9px 14px;font-weight:700;color:var(--muted)}
+.atabs button.on{background:var(--navy);color:#fff;border-color:var(--navy)}
+.panel{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:6px 0;overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;font-size:11.5px;text-transform:uppercase;letter-spacing:.3px;color:var(--muted);padding:10px 14px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:11px 14px;border-bottom:1px solid var(--line);vertical-align:middle}
+tr:last-child td{border-bottom:0}
+.acols{display:grid;grid-template-columns:1.4fr 1fr;gap:16px}
+.tarif-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;padding:14px}
+.tarif-grid .card h4{margin:0 0 10px}
+@media (max-width:900px){.kpis{grid-template-columns:repeat(2,1fr)}.acols{grid-template-columns:1fr}}
+@media (max-width:440px){.phone{border-width:0;border-radius:0;height:calc(100vh - 110px)}main{padding:0}.side{display:none}}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="logo"><span class="dot">K</span>KONDUI <small>Votre voiture, notre chauffeur.</small></div>
+  <div class="switch" role="tablist">
+    <button data-act="view" data-v="client">App client</button>
+    <button data-act="view" data-v="chauffeur">App chauffeur</button>
+    <button data-act="view" data-v="admin">Administration</button>
+  </div>
+  <span class="proto">Prototype · données simulées</span>
+</div>
+<main>
+  <section class="view" id="v-client">
+    <div class="stage">
+      <div class="phone"><div class="phone-status"><span id="clock1">17:50</span><span>●●● 4G 🔋</span></div><div class="screen" id="client-screen"></div><div class="tabbar" id="client-tabs"></div></div>
+      <div class="side">
+        <h2>App client</h2>
+        <p>Le client réserve un chauffeur qui conduit <b>son propre véhicule</b>, suit son arrivée, fait l'état des lieux, paie et note la prestation.</p>
+        <div class="tip"><b>À tester :</b> connectez-vous, choisissez « Chauffeur de soirée », réservez, puis passez sur l'onglet <b>App chauffeur</b> pour accepter la demande vous-même.</div>
+        <div class="tip"><b>Simulation :</b> si personne n'accepte, un chauffeur proche est affecté automatiquement. Le temps est accéléré.</div>
+      </div>
+    </div>
+  </section>
+  <section class="view" id="v-chauffeur">
+    <div class="stage">
+      <div class="phone"><div class="phone-status"><span id="clock2">17:50</span><span>●●● 4G 🔋</span></div><div class="screen" id="driver-screen"></div></div>
+      <div class="side">
+        <h2>App chauffeur</h2>
+        <p>Vous êtes <b>Koffi Agossou</b>, chauffeur vérifié. Passez « En ligne » pour recevoir les demandes, acceptez-les dans le délai, puis suivez les étapes de la mission.</p>
+        <div class="tip"><b>Rémunération :</b> le chauffeur reçoit le prix de la prestation moins la commission KONDUI (réglable dans Administration → Tarifs).</div>
+      </div>
+    </div>
+  </section>
+  <section class="view" id="v-admin"><div class="admin" id="admin-root"></div></section>
+</main>
+<div class="toast" id="toast"></div>
+
+<script>
+// ---------- Données de référence ----------
+const Q = { // quartiers sur la carte (coordonnées SVG)
+  'Abomey-Calavi':{x:118,y:34}, 'Godomey':{x:96,y:96}, 'Agla':{x:110,y:148}, 'Vèdoko':{x:160,y:128},
+  'Zogbo':{x:146,y:158}, 'Fidjrossè':{x:70,y:222,lx:-30,ly:-6}, 'Aéroport':{x:108,y:208,lx:-40,ly:12}, 'Cadjèhoun':{x:138,y:210,lx:-6,ly:13},
+  'Haie Vive':{x:162,y:196}, 'Saint-Michel':{x:190,y:166}, 'Dantokpa':{x:214,y:142}, 'Ganhi':{x:206,y:206},
+  'Akpakpa':{x:268,y:176}, 'PK10':{x:326,y:150}
+};
+const DEST = { // longs trajets depuis Cotonou (forfaits = hypothèses)
+  'Porto-Novo':{km:35,price:15000}, 'Ouidah':{km:40,price:15000}, 'Grand-Popo':{km:80,price:25000},
+  'Bohicon / Abomey':{km:130,price:35000}, 'Lomé':{km:155,price:45000}, 'Lagos':{km:120,price:50000},
+  'Parakou':{km:415,price:80000}, 'Natitingou':{km:530,price:100000}
+};
+const F = {
+  A:{name:'Chauffeur à la demande', ic:'🚗', desc:'Courses, rendez-vous, petits trajets'},
+  B:{name:'Chauffeur de soirée', ic:'🌙', desc:'Rentrer en sécurité après une sortie'},
+  C:{name:'À l\'heure ou à la journée', ic:'⏱️', desc:'Plusieurs rendez-vous, journée entière'},
+  D:{name:'Longs trajets et voyages', ic:'🛣️', desc:'Interurbain et inter-États'},
+  E:{name:'Abonnement', ic:'📅', desc:'Chauffeur régulier, forfait semaine ou mois'}
+};
+const PAY = {momo:'MTN MoMo', moov:'Moov Money', card:'Carte bancaire', cash:'Espèces'};
+const STATUS = {
+  recherche:['Recherche','amber'], en_route:['Chauffeur en route','blue'], sur_place:['Chauffeur sur place','blue'],
+  en_cours:['En cours','blue'], termine:['À payer','amber'], paye:['Terminée','green'], annule:['Annulée','red'], planifie:['Programmée','']
+};
+const KM_PER_UNIT = 0.075;
+
+// ---------- État ----------
+const now = () => Date.now();
+const S = {
+  tariffs:{A_base:1000,A_hour:2500,B_flat:5000,B_km:500,B_inc:10,C_hour:3000,C_day:20000,D_return:0.8,E_week:45000,E_month:175000,commission:20},
+  drivers:[
+    {id:'d1',name:'Koffi Agossou',phone:'+229 01 97 00 11 22',rating:4.9,trips:212,verified:true,online:false,suspended:false,x:170,y:150,earn:0,gear:'Manuelle et automatique'},
+    {id:'d2',name:'Rodrigue Hounkpè',phone:'+229 01 96 12 34 56',rating:4.8,trips:154,verified:true,online:true,suspended:false,x:140,y:190,earn:12000,gear:'Manuelle et automatique'},
+    {id:'d3',name:'Aïcha Bio',phone:'+229 01 95 44 21 09',rating:4.95,trips:301,verified:true,online:true,suspended:false,x:205,y:180,earn:18400,gear:'Automatique'},
+    {id:'d4',name:'Serge Dossou',phone:'+229 01 94 78 65 43',rating:4.7,trips:88,verified:true,online:true,suspended:false,x:260,y:170,earn:8000,gear:'Manuelle'},
+    {id:'d5',name:'Mathieu Zinsou',phone:'+229 01 66 10 20 30',rating:4.6,trips:47,verified:true,online:true,suspended:false,x:100,y:110,earn:6000,gear:'Manuelle et automatique'},
+    {id:'d6',name:'Florent Ahouansou',phone:'+229 01 61 22 33 44',rating:0,trips:0,verified:false,online:false,suspended:false,x:150,y:140,earn:0,gear:'Manuelle',docs:'Permis B, casier judiciaire, CIP'},
+    {id:'d7',name:'Brice Tossou',phone:'+229 01 90 55 66 77',rating:0,trips:0,verified:false,online:false,suspended:false,x:150,y:140,earn:0,gear:'Automatique',docs:'Permis B, CIP — casier manquant'}
+  ],
+  bookings:[],
+  complaints:[
+    {id:'R-0041',ref:'K-1027',client:'Estelle H.',type:'Retard',text:'Chauffeur arrivé avec 20 minutes de retard.',status:'ouvert',at:now()-3600e3*3}
+  ],
+  client:{logged:false,name:'',phone:'',vehicle:{model:'Toyota Corolla',plate:'AB 1234 RB',gear:'Automatique'}},
+  currentId:null, seq:1031
+};
+// réservations de démonstration (déjà payées aujourd'hui)
+[['K-1027','Estelle H.','A','Zogbo','Ganhi','d2',4500,5,'momo'],['K-1028','Marc A.','B','Haie Vive','Fidjrossè','d3',5000,5,'moov'],
+ ['K-1029','Société SOBEMAT','C','Ganhi','Akpakpa','d3',20000,4,'card'],['K-1030','Nadège K.','D','Cadjèhoun','Ouidah','d4',15000,5,'momo']]
+ .forEach(([id,client,f,from,to,d,price,rating,pay],i)=>S.bookings.push({id,client,formula:f,from,to,driverId:d,price,rating,pay,status:'paye',createdAt:now()-3600e3*(6-i),when:'now',duration:f==='C'?'journee':null,trip:'aller'}));
+
+// ---------- Utilitaires ----------
+const $ = s => document.querySelector(s);
+const fmt = n => Math.round(n).toLocaleString('fr-FR').replace(/ | /g,' ') + ' FCFA';
+const r100 = n => Math.round(n/100)*100;
+const dist = (a,b) => Math.hypot(a.x-b.x,a.y-b.y);
+const kmBetween = (a,b) => dist(Q[a],Q[b])*KM_PER_UNIT;
+const initials = n => n.split(' ').map(p=>p[0]).slice(0,2).join('');
+const drv = id => S.drivers.find(d=>d.id===id);
+const bk = id => S.bookings.find(b=>b.id===id);
+const esc = s => String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+let toastT; function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('on'),2800)}
+function hhmm(t){const d=new Date(t);return d.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})}
+
+function estimate(b){
+  const t=S.tariffs; let price=0, detail='';
+  if(b.formula==='D'){
+    const d=DEST[b.to]; if(!d) return {price:0,detail:''};
+    price=d.price*(b.trip==='ar'?1+t.D_return:1);
+    detail=`${d.km} km environ · ${b.trip==='ar'?'aller-retour':'aller simple'} · retour du chauffeur inclus`;
+  } else if(b.formula==='E'){
+    price=b.plan==='mois'?t.E_month:t.E_week;
+    detail=b.plan==='mois'?'Jours ouvrés, 8 h par jour, pendant un mois':'5 jours, 8 h par jour';
+  } else if(b.formula==='C'){
+    if(b.duration==='journee'){price=t.C_day;detail='Journée de 8 h'} else {const h=+b.duration||2;price=t.C_hour*h;detail=`${h} h de mise à disposition`}
+  } else {
+    if(!Q[b.from]||!Q[b.to]||b.from===b.to) return {price:0,detail:'Choisissez un départ et une destination différents'};
+    const km=kmBetween(b.from,b.to);
+    if(b.formula==='A'){const h=Math.max(1,Math.ceil((km/18+.25)*2)/2);price=t.A_base+t.A_hour*h;detail=`${km.toFixed(1)} km · environ ${Math.round(km/18*60+10)} min · ${h} h facturée${h>1?'s':''}`}
+    else {price=t.B_flat+Math.max(0,km-t.B_inc)*t.B_km;detail=`${km.toFixed(1)} km · forfait soirée${km>t.B_inc?' + supplément distance':''}`}
+  }
+  return {price:r100(price),detail};
+}
+
+// ---------- Navigation entre espaces ----------
+let VIEW='client';
+function setView(v){
+  VIEW=v; document.querySelectorAll('.view').forEach(e=>e.classList.toggle('on',e.id==='v-'+v));
+  document.querySelectorAll('.switch button').forEach(b=>b.classList.toggle('on',b.dataset.v===v));
+  try{ if(location.hash!=='#'+v) history.replaceState(null,'','#'+v) }catch(e){}
+  renderAll();
+}
+window.addEventListener('hashchange',()=>{const h=location.hash.slice(1);if(['client','chauffeur','admin'].includes(h)&&h!==VIEW)setView(h)});
+
+// ---------- Carte ----------
+function mapSVG({showAll=false, booking=null, h=230}={}){
+  const qs=Object.entries(Q).map(([n,p])=>`<circle cx="${p.x}" cy="${p.y}" r="2.6" fill="#7C8A96"/><text x="${p.x+(p.lx??5)}" y="${p.y+(p.ly??-4)}" font-size="8.5" fill="#4A5966" font-weight="600">${n}</text>`).join('');
+  let route='';
+  if(booking && Q[booking.from]){
+    const a=Q[booking.from];
+    route+=`<circle cx="${a.x}" cy="${a.y}" r="6" fill="#F5A623" stroke="#fff" stroke-width="2"/>`;
+    if(Q[booking.to]){const b=Q[booking.to];route=`<path d="M${a.x} ${a.y} L${b.x} ${b.y}" stroke="#0F2A3D" stroke-width="2.5" stroke-dasharray="5 4" fill="none"/>`+route+`<rect x="${b.x-5}" y="${b.y-5}" width="10" height="10" rx="2" fill="#0F2A3D" stroke="#fff" stroke-width="2"/>`}
+  }
+  const ds=S.drivers.filter(d=> showAll ? (d.online&&d.verified) : (booking&&d.id===booking.driverId)).map(d=>{
+    const busy=S.bookings.some(b=>b.driverId===d.id&&['en_route','sur_place','en_cours'].includes(b.status));
+    return `<g data-drv="${d.id}" transform="translate(${d.x} ${d.y})"><circle r="8" fill="${busy?'#2F6FDE':'#1E9E61'}" stroke="#fff" stroke-width="2"/><text y="3" text-anchor="middle" font-size="8" fill="#fff" font-weight="800">${initials(d.name)}</text></g>`}).join('');
+  return `<svg viewBox="0 0 360 ${h===230?260:300}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Carte de Cotonou">
+    <rect width="360" height="300" fill="#EAF2E3"/>
+    <ellipse cx="300" cy="62" rx="90" ry="58" fill="#BFDDF0"/><text x="292" y="52" font-size="9" fill="#4F7FA0" font-style="italic">Lac Nokoué</text>
+    <path d="M236 105 C240 150 232 190 238 300 L248 300 C244 190 252 150 246 105 Z" fill="#BFDDF0"/>
+    <path d="M0 238 C90 232 200 240 360 228 L360 300 L0 300 Z" fill="#BFDDF0"/><text x="20" y="262" font-size="9" fill="#4F7FA0" font-style="italic">Océan Atlantique</text>
+    <path d="M118 34 L96 96 L110 148 L146 158 L206 206 M146 158 L190 166 L214 142 M206 206 L268 176 L326 150 M70 222 L112 206 L162 196 L206 206" stroke="#fff" stroke-width="4" fill="none" stroke-linecap="round"/>
+    ${qs}${route}${ds}</svg>`;
+}
+
+// ---------- APP CLIENT ----------
+let CS='login'; // écran client
+let draft=null, rateDraft={stars:0,comment:''}, checkIn={photos:0,body:false,fuel:'',keys:false}, payState='idle', modal=null;
+function newDraft(f){return {formula:f,from:'Haie Vive',to:f==='D'?'Ouidah':'Fidjrossè',when:'now',date:'',time:'',duration:'3',trip:'aller',plan:'semaine',pay:'momo',note:''}}
+function clientTabs(){
+  const t=$('#client-tabs');
+  if(!S.client.logged){t.innerHTML='';return}
+  const active=['history','profile'].includes(CS)?CS:'home';
+  t.innerHTML=[['home','🏠','Accueil'],['history','🧾','Mes courses'],['profile','👤','Profil']].map(([k,i,l])=>`<button data-act="ctab" data-k="${k}" class="${active===k?'on':''}"><i>${i}</i>${l}</button>`).join('');
+}
+function renderClient(){
+  const el=$('#client-screen'); let h='';
+  const cur=S.currentId?bk(S.currentId):null;
+  if(!S.client.logged) CS='login';
+  else if(cur && !['paye','annule'].includes(cur.status) && !['history','profile'].includes(CS)) CS='track';
+  if(CS==='login'){
+    h=`<div class="pad" style="padding-top:40px">
+      <div class="logo" style="color:var(--navy);font-size:28px"><span class="dot" style="width:38px;height:38px;font-size:20px">K</span>KONDUI</div>
+      <p class="muted" style="margin:10px 0 28px">Votre voiture, notre chauffeur. Un conducteur vérifié prend le volant de votre véhicule, quand vous voulez.</p>
+      <div class="field"><label>Prénom et nom</label><input id="l-name" placeholder="Ex. Chérifath K." value="${esc(S.client.name)}"></div>
+      <div class="field"><label>Numéro de téléphone</label><input id="l-phone" inputmode="tel" placeholder="+229 01 00 00 00 00" value="${esc(S.client.phone)}"></div>
+      <div class="field"><label>Votre véhicule</label><input id="l-car" value="${esc(S.client.vehicle.model)}"></div>
+      <div class="grid2"><div class="field"><label>Immatriculation</label><input id="l-plate" value="${esc(S.client.vehicle.plate)}"></div>
+      <div class="field"><label>Boîte</label><select id="l-gear"><option ${S.client.vehicle.gear==='Automatique'?'selected':''}>Automatique</option><option ${S.client.vehicle.gear==='Manuelle'?'selected':''}>Manuelle</option></select></div></div>
+      <button class="btn amber" data-act="login">Créer mon compte</button>
+      <p class="small muted" style="text-align:center;margin-top:12px">Un code de vérification serait envoyé par SMS (simulé ici).</p></div>`;
+  }
+  else if(CS==='home'){
+    h=`<div class="pad"><div class="hello">Bonsoir ${esc(S.client.name.split(' ')[0]||'')} 👋</div><h1 class="t">De quel chauffeur avez-vous besoin ?</h1>
+      <div class="card row" style="margin-bottom:14px"><div style="font-size:22px">🚙</div><div style="flex:1"><b>${esc(S.client.vehicle.model)}</b><div class="small muted">${esc(S.client.vehicle.plate)} · ${esc(S.client.vehicle.gear)}</div></div><span class="badge green">Assuré</span></div>
+      <div class="grid2">${['A','B','C','D'].map(k=>`<button class="fcard" data-act="pick" data-f="${k}"><div class="ic">${F[k].ic}</div><b>${F[k].name}</b><span>${F[k].desc}</span></button>`).join('')}
+      <button class="fcard wide" data-act="pick" data-f="E"><div class="ic">${F.E.ic}</div><div><b>${F.E.name}</b><span>${F.E.desc} · idéal entreprises</span></div></button></div>
+      <h3 class="t">Pourquoi KONDUI</h3>
+      <div class="card small" style="line-height:1.7">✅ Chauffeurs vérifiés : permis, casier, test de conduite<br>📸 État des lieux photo au départ et à l'arrivée<br>📍 Suivi en temps réel et bouton d'alerte<br>📱 Paiement Mobile Money, carte ou espèces</div></div>`;
+  }
+  else if(CS==='book'){
+    const d=draft, e=estimate(d), f=d.formula;
+    const qOpts=sel=>Object.keys(Q).map(n=>`<option ${n===sel?'selected':''}>${n}</option>`).join('');
+    h=`<div class="pad"><button class="back" data-act="home">← Retour</button>
+      <div class="row" style="margin-bottom:12px"><div class="fcard" style="padding:0;border:0"><div class="ic" style="margin:0">${F[f].ic}</div></div><div><b style="font-size:16px">${F[f].name}</b><div class="small muted">${F[f].desc}</div></div></div>
+      <div class="field"><label>Point de départ (votre véhicule)</label><select data-field="from">${qOpts(d.from)}</select></div>
+      ${f==='D'?`<div class="field"><label>Destination</label><select data-field="to">${Object.keys(DEST).map(n=>`<option ${n===d.to?'selected':''}>${n}</option>`).join('')}</select></div>
+        <div class="field"><label>Type de trajet</label><div class="seg"><button data-act="set" data-k="trip" data-v="aller" class="${d.trip==='aller'?'on':''}">Aller simple</button><button data-act="set" data-k="trip" data-v="ar" class="${d.trip==='ar'?'on':''}">Aller-retour</button></div></div>`
+      : (f==='A'||f==='B')?`<div class="field"><label>Destination</label><select data-field="to">${qOpts(d.to)}</select></div>`:''}
+      ${f==='C'?`<div class="field"><label>Durée de mise à disposition</label><div class="pills">${[['2','2 h'],['3','3 h'],['4','4 h'],['6','6 h'],['journee','Journée (8 h)']].map(([v,l])=>`<button class="pill ${d.duration===v?'on':''}" data-act="set" data-k="duration" data-v="${v}">${l}</button>`).join('')}</div></div>`:''}
+      ${f==='E'?`<div class="field"><label>Formule</label><div class="seg"><button data-act="set" data-k="plan" data-v="semaine" class="${d.plan==='semaine'?'on':''}">Semaine</button><button data-act="set" data-k="plan" data-v="mois" class="${d.plan==='mois'?'on':''}">Mois</button></div></div>`:''}
+      <div class="field"><label>Quand ?</label><div class="seg"><button data-act="set" data-k="when" data-v="now" class="${d.when==='now'?'on':''}">Maintenant</button><button data-act="set" data-k="when" data-v="later" class="${d.when==='later'?'on':''}">Programmer</button></div></div>
+      ${d.when==='later'?`<div class="grid2"><div class="field"><label>Date</label><input type="date" data-field="date" value="${d.date}"></div><div class="field"><label>Heure</label><input type="time" data-field="time" value="${d.time}"></div></div>`:''}
+      <div class="field"><label>Paiement</label><div class="pills">${Object.entries(PAY).map(([k,l])=>`<button class="pill ${d.pay===k?'on':''}" data-act="set" data-k="pay" data-v="${k}">${l}</button>`).join('')}</div></div>
+      <div class="field"><label>Note pour le chauffeur (facultatif)</label><input data-field="note" value="${esc(d.note)}" placeholder="Ex. portail bleu, sonner deux fois"></div>
+      <div class="est"><small>Tarif estimatif</small><div class="p" id="est-p">${e.price?fmt(e.price):'—'}</div><div class="d" id="est-d">${e.detail}</div><div class="d">Carburant, péages et parking à votre charge.</div></div>
+      <button class="btn amber" data-act="confirm" ${e.price?'':'disabled'}>${d.when==='now'?'Commander un chauffeur':'Programmer la réservation'}</button></div>`;
+  }
+  else if(CS==='track' && cur){
+    const d=cur.driverId?drv(cur.driverId):null;
+    const step={recherche:1,planifie:1,en_route:2,sur_place:3,en_cours:4,termine:5}[cur.status]||1;
+    const top=`<div class="row" style="justify-content:space-between"><b>${cur.id} · ${F[cur.formula].name}</b><span class="badge ${STATUS[cur.status][1]}">${STATUS[cur.status][0]}</span></div><div class="stepper">${[1,2,3,4,5].map(i=>`<div class="${i<=step?'on':''}"></div>`).join('')}</div>`;
+    const dcard=d?`<div class="card drv" style="margin-top:12px"><div class="avatar">${initials(d.name)}</div><div style="flex:1"><b>${d.name}</b><div class="small muted">★ ${d.rating} · ${d.trips} prestations · Badge KDI-${d.id.slice(1).padStart(4,'0')}</div><div class="small muted">${d.phone}</div></div><span class="badge green">Vérifié</span></div>`:'';
+    h=`<div class="pad">${top}`;
+    if(cur.status==='planifie'){
+      h+=`<div style="text-align:center;padding:30px 0"><div style="font-size:44px">📅</div><h3 class="t">Réservation confirmée</h3><p class="muted">Prévue le ${esc(cur.date||'—')} à ${esc(cur.time||'—')}.<br>Nous vous attribuerons un chauffeur 30 minutes avant.</p></div>
+        <button class="btn" data-act="simulate-now">Simuler l'heure de la réservation</button><div style="height:8px"></div><button class="btn ghost" data-act="cancel">Annuler la réservation</button>`;
+    } else if(cur.status==='recherche'){
+      h+=`<div class="spinner"></div><h3 class="t" style="text-align:center">Recherche d'un chauffeur à proximité…</h3><p class="muted small" style="text-align:center">Les chauffeurs vérifiés autour de ${esc(cur.from)} reçoivent votre demande.</p><div class="mapbox" style="margin:14px 0">${mapSVG({showAll:true,booking:cur})}</div><button class="btn ghost" data-act="cancel">Annuler</button>`;
+    } else if(cur.status==='en_route'){
+      const eta=Math.max(1,Math.round(dist(d,Q[cur.from])/12));
+      h+=`<h3 class="t">Votre chauffeur arrive dans <span id="eta">${eta}</span> min</h3><div class="mapbox">${mapSVG({booking:cur})}</div>${dcard}
+        <div class="row" style="margin-top:12px"><button class="btn ghost sm" data-act="info" data-m="Appel du chauffeur (simulation)">📞 Appeler</button><button class="btn ghost sm" data-act="info" data-m="Messagerie ouverte (simulation)">💬 Message</button><button class="btn ghost sm" data-act="cancel">Annuler</button></div>`;
+    } else if(cur.status==='sur_place'){
+      h+=`<h3 class="t">${d.name.split(' ')[0]} est arrivé à ${esc(cur.from)}</h3>${dcard}
+        <h3 class="t">État des lieux du véhicule</h3>
+        <div class="card"><label class="check" style="cursor:pointer"><span style="font-size:20px">📸</span><span style="flex:1">Photos du véhicule (4 côtés)<br><span class="small muted">${checkIn.photos?checkIn.photos+' photo(s) ajoutée(s)':'Recommandé'}</span></span><input type="file" accept="image/*" multiple data-field="photos" style="width:auto;max-width:96px;font-size:11px"></label>
+        <label class="check"><input type="checkbox" data-field="body" ${checkIn.body?'checked':''}> Carrosserie vérifiée avec le chauffeur</label>
+        <div class="check" style="justify-content:space-between">Niveau de carburant <select data-field="fuel" style="padding:6px;border-radius:8px;border:1.5px solid var(--line)"><option value="">Choisir</option>${['Réserve','1/4','1/2','3/4','Plein'].map(v=>`<option ${checkIn.fuel===v?'selected':''}>${v}</option>`).join('')}</select></div>
+        <label class="check" style="border:0"><input type="checkbox" data-field="keys" ${checkIn.keys?'checked':''}> Clés remises au chauffeur</label></div>
+        <div style="height:12px"></div><button class="btn amber" data-act="start" ${checkIn.body&&checkIn.fuel&&checkIn.keys?'':'disabled'}>Valider et démarrer</button>`;
+    } else if(cur.status==='en_cours'){
+      const timed=['C','E','D'].includes(cur.formula);
+      h+=`<h3 class="t">${cur.formula==='D'?'En route vers '+esc(cur.to):timed?'Mise à disposition en cours':'Trajet en cours vers '+esc(cur.to)}</h3>
+        ${cur.formula==='D'?'':`<div class="mapbox">${mapSVG({booking:cur})}</div>`}
+        ${timed?`<div class="card" style="margin-top:12px"><div class="row" style="justify-content:space-between"><b>Progression</b><span class="small muted" id="prog-t">${progLabel(cur)}</span></div><div class="progress" style="margin-top:8px"><div id="prog" style="width:${Math.round((cur.progress||0)*100)}%"></div></div></div>`:''}
+        ${dcard}
+        <div class="row" style="margin-top:12px"><button class="btn ghost sm" data-act="share">🔗 Partager mon trajet</button>${timed?'<button class="btn ghost sm" data-act="finish">Terminer maintenant</button>':''}</div>
+        <div style="height:70px"></div>`;
+    } else if(cur.status==='termine'){
+      h+=`<div style="text-align:center;padding:10px 0 4px"><div style="font-size:40px">🏁</div><h3 class="t" style="margin-top:4px">Prestation terminée</h3></div>
+        <div class="card"><div class="list-item"><span class="muted">Trajet</span><b>${esc(cur.from)} → ${esc(cur.to||'mise à disposition')}</b></div><div class="list-item"><span class="muted">Chauffeur</span><b>${d.name}</b></div><div class="list-item"><span class="muted">Paiement</span><b>${PAY[cur.pay]}</b></div><div class="list-item"><span class="muted">Total</span><b style="font-size:18px">${fmt(cur.price)}</b></div></div>
+        <label class="check"><input type="checkbox" data-field="checkout" ${checkIn.out?'checked':''}> J'ai récupéré mon véhicule et mes clés en bon état</label>
+        <div style="height:10px"></div>
+        ${payState==='pending'?`<div class="card" style="text-align:center"><div class="spinner" style="margin:6px auto 10px;width:36px;height:36px;border-width:4px"></div><b>Validez le paiement sur votre téléphone</b><div class="small muted">Demande envoyée via ${PAY[cur.pay]} (simulation)</div></div>`
+        :`<button class="btn amber" data-act="pay" ${checkIn.out?'':'disabled'}>${cur.pay==='cash'?'Confirmer le paiement en espèces':'Payer '+fmt(cur.price)}</button>`}`;
+    }
+    h+=`</div>`;
+    if(cur.status==='en_cours') h+=`<button class="sos" data-act="sos" title="Alerte">SOS</button>`;
+  }
+  else if(CS==='rate'){
+    const b=bk(rateDraft.id), d=b&&drv(b.driverId);
+    h=`<div class="pad" style="text-align:center;padding-top:36px"><div class="avatar" style="margin:0 auto 10px;width:64px;height:64px;font-size:20px">${d?initials(d.name):''}</div>
+      <h1 class="t">Comment s'est passée la prestation avec ${d?d.name.split(' ')[0]:''} ?</h1>
+      <div class="stars">${[1,2,3,4,5].map(i=>`<button data-act="star" data-v="${i}" class="${i<=rateDraft.stars?'on':''}">★</button>`).join('')}</div>
+      <div class="field" style="text-align:left;margin-top:18px"><label>Commentaire (facultatif)</label><textarea rows="3" data-field="comment">${esc(rateDraft.comment)}</textarea></div>
+      <button class="btn amber" data-act="rate" ${rateDraft.stars?'':'disabled'}>Envoyer mon avis</button><div style="height:8px"></div>
+      <button class="btn ghost" data-act="complain">Signaler un problème</button></div>`;
+  }
+  else if(CS==='history'){
+    const mine=S.bookings.filter(b=>b.mine).slice().reverse();
+    h=`<div class="pad"><h1 class="t">Mes courses</h1>${mine.length?`<div class="card">${mine.map(b=>`<div class="list-item"><div><b>${F[b.formula].name}</b><div class="small muted">${esc(b.from)} → ${esc(b.to||'—')} · ${hhmm(b.createdAt)}</div></div><div style="text-align:right"><b>${fmt(b.price)}</b><div><span class="badge ${STATUS[b.status][1]}">${STATUS[b.status][0]}</span></div></div></div>`).join('')}</div>`:'<p class="muted">Aucune course pour le moment.</p>'}</div>`;
+  }
+  else if(CS==='profile'){
+    h=`<div class="pad"><h1 class="t">Profil</h1><div class="card drv"><div class="avatar">${initials(S.client.name||'?')}</div><div><b>${esc(S.client.name)}</b><div class="small muted">${esc(S.client.phone)}</div></div></div>
+      <h3 class="t">Mon véhicule</h3><div class="card"><b>${esc(S.client.vehicle.model)}</b><div class="small muted">${esc(S.client.vehicle.plate)} · Boîte ${esc(S.client.vehicle.gear.toLowerCase())}</div></div>
+      <h3 class="t">Contacts d'urgence</h3><div class="card small muted">Ajoutez un proche qui recevra le lien de suivi de vos trajets.</div>
+      <div style="height:16px"></div><button class="btn ghost" data-act="logout">Se déconnecter</button></div>`;
+  }
+  if(modal) h+=`<div class="modal"><div class="card" style="text-align:center"><div style="font-size:36px">${modal.ic}</div><h3 class="t" style="margin-top:6px">${modal.title}</h3><p class="muted">${modal.text}</p><button class="btn" data-act="close-modal">Compris</button></div></div>`;
+  el.innerHTML=h; clientTabs();
+}
+function progLabel(b){
+  if(b.formula==='D') return Math.round((b.progress||0)*100)+' %';
+  const total=b.formula==='C'?(b.duration==='journee'?8:+b.duration):8;
+  const done=(b.progress||0)*total; return `${Math.floor(done)} h ${String(Math.round((done%1)*60)).padStart(2,'0')} / ${total} h`;
+}
+
+// ---------- APP CHAUFFEUR ----------
+const ME='d1'; let declined=new Set();
+function renderDriver(){
+  const me=drv(ME), el=$('#driver-screen');
+  const mission=S.bookings.find(b=>b.driverId===ME&&['en_route','sur_place','en_cours','termine'].includes(b.status));
+  const req=!mission&&me.online?S.bookings.find(b=>b.status==='recherche'&&!declined.has(b.id)):null;
+  const done=S.bookings.filter(b=>b.driverId===ME&&b.status==='paye');
+  let h=`<div class="dhead"><div class="row" style="justify-content:space-between"><div><div class="small" style="opacity:.75">Bonjour</div><b style="font-size:17px">${me.name}</b></div>
+    <div class="toggle">${me.online?'En ligne':'Hors ligne'}<button class="sw ${me.online?'on':''}" data-act="online" aria-label="En ligne"></button></div></div>
+    <div style="margin-top:14px" class="small"><span style="opacity:.75">Gains du jour</span><div class="gain">${fmt(me.earn)}</div><span style="opacity:.75">${done.length} prestation(s) · ★ ${me.rating}</span></div></div><div class="pad">`;
+  if(req){
+    const left=Math.max(0,15-Math.floor((now()-req.createdAt)/1000)), e=req.price*(1-S.tariffs.commission/100);
+    h+=`<div class="card request"><div class="row" style="justify-content:space-between"><b>Nouvelle demande</b><span class="countdown" id="cd">${left} s</span></div>
+      <div style="margin:10px 0"><span class="badge amber">${F[req.formula].ic} ${F[req.formula].name}</span></div>
+      <div class="list-item"><span class="muted">Départ</span><b>${esc(req.from)}</b></div><div class="list-item"><span class="muted">Destination</span><b>${esc(req.to||'Mise à disposition')}</b></div>
+      <div class="list-item"><span class="muted">Véhicule client</span><b>${esc(req.vehicle||'')}</b></div><div class="list-item"><span class="muted">Vos gains estimés</span><b>${fmt(e)}</b></div>
+      ${req.note?`<div class="small muted" style="margin:6px 0">Note : ${esc(req.note)}</div>`:''}
+      <div class="row" style="margin-top:10px"><button class="btn ghost" data-act="decline" data-id="${req.id}">Refuser</button><button class="btn green" data-act="accept" data-id="${req.id}">Accepter</button></div></div>`;
+  } else if(mission){
+    const steps={en_route:['Rendez-vous au point de départ','Je suis arrivé','arrive'],sur_place:['Faites l\'état des lieux avec le client','Démarrer la prestation','dstart'],en_cours:['Prestation en cours','Terminer la prestation','dfinish'],termine:['En attente du paiement du client','','']}[mission.status];
+    h+=`<div class="card"><div class="row" style="justify-content:space-between"><b>${mission.id}</b><span class="badge ${STATUS[mission.status][1]}">${STATUS[mission.status][0]}</span></div>
+      <p style="margin:8px 0 10px"><b>${steps[0]}</b></p><div class="mapbox">${mission.formula==='D'&&mission.status==='en_cours'?'<div class="pad muted">Trajet longue distance vers '+esc(mission.to)+'</div>':mapSVG({booking:mission})}</div>
+      <div class="list-item"><span class="muted">Client</span><b>${esc(mission.client)}</b></div><div class="list-item"><span class="muted">Véhicule</span><b>${esc(mission.vehicle)}</b></div>
+      <div class="list-item"><span class="muted">Trajet</span><b>${esc(mission.from)} → ${esc(mission.to||'mise à disposition')}</b></div>
+      ${steps[1]?`<button class="btn amber" style="margin-top:10px" data-act="${steps[2]}" data-id="${mission.id}">${steps[1]}</button>`:'<p class="small muted pulse">Le client confirme le véhicule et paie…</p>'}</div>`;
+  } else {
+    h+=me.online?`<div style="text-align:center;padding:24px 0"><div class="pulse" style="font-size:40px">📡</div><b>En attente de demandes</b><p class="small muted">Les demandes proches de vous apparaîtront ici. Créez une réservation dans l'app client pour en recevoir une.</p></div>`
+      :`<div style="text-align:center;padding:24px 0"><div style="font-size:40px">😴</div><b>Vous êtes hors ligne</b><p class="small muted">Passez en ligne pour recevoir des demandes.</p></div>`;
+  }
+  h+=`<h3 class="t">Mes dernières prestations</h3><div class="card">${done.length?done.slice().reverse().map(b=>`<div class="list-item"><div><b>${F[b.formula].name}</b><div class="small muted">${esc(b.from)} → ${esc(b.to||'—')}</div></div><div style="text-align:right"><b>${fmt(b.price*(1-S.tariffs.commission/100))}</b>${b.rating?`<div class="small muted">★ ${b.rating}</div>`:''}</div></div>`).join(''):'<span class="small muted">Aucune prestation aujourd\'hui.</span>'}</div>
+    <h3 class="t">Mon profil</h3><div class="card small" style="line-height:1.7">✅ Permis B vérifié · ✅ Casier judiciaire · ✅ Formation KONDUI<br>Boîtes maîtrisées : ${me.gear}</div></div>`;
+  el.innerHTML=h;
+}
+
+// ---------- ADMINISTRATION ----------
+let AT='bookings';
+function renderAdmin(){
+  const paid=S.bookings.filter(b=>b.status==='paye'), ca=paid.reduce((s,b)=>s+b.price,0);
+  const rated=paid.filter(b=>b.rating), avg=rated.length?(rated.reduce((s,b)=>s+b.rating,0)/rated.length).toFixed(2):'—';
+  const online=S.drivers.filter(d=>d.online&&d.verified).length;
+  const open=S.complaints.filter(c=>c.status==='ouvert').length;
+  let h=`<div class="row" style="justify-content:space-between;margin-bottom:14px;flex-wrap:wrap"><div><h1 class="t" style="margin:0">Tableau de bord</h1><div class="muted small">Cotonou · aujourd'hui · mis à jour en temps réel</div></div>${open?`<span class="badge red">${open} réclamation(s) à traiter</span>`:''}</div>
+  <div class="kpis"><div class="kpi"><small>Réservations du jour</small><b>${S.bookings.length}</b></div><div class="kpi"><small>Chiffre d'affaires</small><b>${fmt(ca)}</b></div>
+  <div class="kpi"><small>Commission KONDUI (${S.tariffs.commission} %)</small><b>${fmt(ca*S.tariffs.commission/100)}</b></div><div class="kpi"><small>Chauffeurs en ligne</small><b>${online} / ${S.drivers.filter(d=>d.verified).length}</b></div><div class="kpi"><small>Note moyenne</small><b>★ ${avg}</b></div></div>
+  <div class="atabs">${[['bookings','Réservations'],['map','Carte en direct'],['drivers','Chauffeurs'],['complaints','Réclamations'],['tariffs','Tarifs']].map(([k,l])=>`<button data-act="atab" data-k="${k}" class="${AT===k?'on':''}">${l}</button>`).join('')}</div>`;
+  if(AT==='bookings'){
+    h+=`<div class="panel"><table><thead><tr><th>Réf.</th><th>Heure</th><th>Client</th><th>Formule</th><th>Trajet</th><th>Chauffeur</th><th>Paiement</th><th>Montant</th><th>Statut</th></tr></thead><tbody>
+    ${S.bookings.slice().reverse().map(b=>`<tr><td><b>${b.id}</b></td><td>${hhmm(b.createdAt)}</td><td>${esc(b.client)}</td><td>${F[b.formula].ic} ${b.formula}</td><td>${esc(b.from)} → ${esc(b.to||'mise à dispo.')}</td><td>${b.driverId?drv(b.driverId).name:'<span class="muted">—</span>'}</td><td>${PAY[b.pay]}</td><td><b>${fmt(b.price)}</b></td><td><span class="badge ${STATUS[b.status][1]}">${STATUS[b.status][0]}</span></td></tr>`).join('')}</tbody></table></div>`;
+  } else if(AT==='map'){
+    h+=`<div class="acols"><div class="mapbox" style="background:#EAF2E3">${mapSVG({showAll:true,h:300})}</div><div class="panel"><table><thead><tr><th>Chauffeur</th><th>État</th><th>Gains du jour</th></tr></thead><tbody>
+    ${S.drivers.filter(d=>d.verified).map(d=>{const m=S.bookings.find(b=>b.driverId===d.id&&['en_route','sur_place','en_cours'].includes(b.status));return `<tr><td><b>${d.name}</b></td><td>${!d.online?'<span class="badge">Hors ligne</span>':m?`<span class="badge blue">En mission ${m.id}</span>`:'<span class="badge green">Disponible</span>'}</td><td>${fmt(d.earn)}</td></tr>`}).join('')}</tbody></table>
+    <p class="small muted" style="padding:0 14px">🟢 disponible · 🔵 en mission</p></div></div>`;
+  } else if(AT==='drivers'){
+    h+=`<div class="panel"><table><thead><tr><th>Chauffeur</th><th>Téléphone</th><th>Boîte</th><th>Prestations</th><th>Note</th><th>Vérification</th><th>Action</th></tr></thead><tbody>
+    ${S.drivers.map(d=>`<tr><td><b>${d.name}</b>${d.docs&&!d.verified?`<div class="small muted">${d.docs}</div>`:''}</td><td>${d.phone}</td><td>${d.gear}</td><td>${d.trips}</td><td>${d.rating?'★ '+d.rating:'—'}</td>
+      <td>${d.suspended?'<span class="badge red">Suspendu</span>':d.verified?'<span class="badge green">Vérifié</span>':'<span class="badge amber">En attente</span>'}</td>
+      <td>${!d.verified?`<button class="btn green sm" data-act="verify" data-id="${d.id}">Valider le dossier</button>`:`<button class="btn ghost sm" data-act="suspend" data-id="${d.id}">${d.suspended?'Réactiver':'Suspendre'}</button>`}</td></tr>`).join('')}</tbody></table></div>`;
+  } else if(AT==='complaints'){
+    h+=`<div class="panel"><table><thead><tr><th>Réf.</th><th>Heure</th><th>Course</th><th>Client</th><th>Type</th><th>Description</th><th>Statut</th><th></th></tr></thead><tbody>
+    ${S.complaints.length?S.complaints.slice().reverse().map(c=>`<tr><td><b>${c.id}</b></td><td>${hhmm(c.at)}</td><td>${c.ref}</td><td>${esc(c.client)}</td><td>${c.type==='Alerte SOS'?'<span class="badge red">Alerte SOS</span>':esc(c.type)}</td><td>${esc(c.text)}</td><td>${c.status==='ouvert'?'<span class="badge amber">Ouvert</span>':'<span class="badge green">Traité</span>'}</td><td>${c.status==='ouvert'?`<button class="btn sm" data-act="resolve" data-id="${c.id}">Marquer traité</button>`:''}</td></tr>`).join(''):'<tr><td colspan="8" class="muted">Aucune réclamation.</td></tr>'}</tbody></table></div>`;
+  } else if(AT==='tariffs'){
+    const t=S.tariffs, inp=(k,l)=>`<div class="field"><label>${l}</label><input type="number" min="0" step="100" data-tariff="${k}" value="${t[k]}"></div>`;
+    h+=`<div class="panel"><div class="tarif-grid">
+      <div class="card"><h4>🚗 A. À la demande</h4>${inp('A_base','Prise en charge (FCFA)')}${inp('A_hour','Prix par heure (FCFA)')}</div>
+      <div class="card"><h4>🌙 B. Soirée</h4>${inp('B_flat','Forfait (FCFA)')}${inp('B_inc','Km inclus')}${inp('B_km','Supplément par km (FCFA)')}</div>
+      <div class="card"><h4>⏱️ C. Heure ou journée</h4>${inp('C_hour','Prix par heure (FCFA)')}${inp('C_day','Journée de 8 h (FCFA)')}</div>
+      <div class="card"><h4>📅 E. Abonnement</h4>${inp('E_week','Semaine (FCFA)')}${inp('E_month','Mois (FCFA)')}</div>
+      <div class="card"><h4>💼 Plateforme</h4><div class="field"><label>Commission KONDUI (%)</label><input type="number" min="0" max="50" step="1" data-tariff="commission" value="${t.commission}"></div><p class="small muted">Les forfaits longs trajets (D) sont définis par destination.</p></div>
+    </div><p class="small muted" style="padding:0 14px 10px">Les modifications s'appliquent immédiatement aux estimations de l'app client. Prix de départ = hypothèses à valider par l'étude de marché.</p></div>`;
+  }
+  $('#admin-root').innerHTML=h;
+}
+
+function renderAll(){ if(VIEW==='client')renderClient(); else if(VIEW==='chauffeur')renderDriver(); else renderAdmin(); }
+
+// ---------- Logique métier ----------
+function assign(b,driverId){
+  b.driverId=driverId; b.status='en_route';
+  const d=drv(driverId); toast(`${d.name} a accepté votre demande`);
+}
+function nearestFree(b){
+  const busy=new Set(S.bookings.filter(x=>['en_route','sur_place','en_cours','termine'].includes(x.status)).map(x=>x.driverId));
+  return S.drivers.filter(d=>d.online&&d.verified&&!d.suspended&&!busy.has(d.id)&&d.id!==ME).sort((a,c)=>dist(a,Q[b.from])-dist(c,Q[b.from]))[0];
+}
+function finishMission(b){ b.status='termine'; b.progress=1; toast('Prestation terminée'); }
+
+const actions={
+  view:el=>setView(el.dataset.v),
+  login:()=>{
+    const n=$('#l-name').value.trim(), p=$('#l-phone').value.trim();
+    if(!n||!p){toast('Renseignez votre nom et votre numéro');return}
+    Object.assign(S.client,{logged:true,name:n,phone:p}); Object.assign(S.client.vehicle,{model:$('#l-car').value.trim()||'Mon véhicule',plate:$('#l-plate').value.trim(),gear:$('#l-gear').value});
+    CS='home'; toast('Compte créé, bienvenue !'); renderClient();
+  },
+  logout:()=>{S.client.logged=false;CS='login';renderClient()},
+  ctab:el=>{CS=el.dataset.k;renderClient()},
+  home:()=>{CS='home';renderClient()},
+  pick:el=>{draft=newDraft(el.dataset.f);CS='book';renderClient()},
+  set:el=>{draft[el.dataset.k]=el.dataset.v;renderClient()},
+  confirm:()=>{
+    const e=estimate(draft); if(!e.price)return;
+    if(draft.when==='later'&&(!draft.date||!draft.time)){toast('Choisissez une date et une heure');return}
+    const b={...draft,id:'K-'+(S.seq++),client:S.client.name,vehicle:`${S.client.vehicle.model} · ${S.client.vehicle.plate}`,price:e.price,mine:true,
+      status:draft.when==='later'?'planifie':'recherche',createdAt:now(),driverId:null,progress:0};
+    if(['C','E'].includes(b.formula)) b.to='';
+    S.bookings.push(b); S.currentId=b.id; checkIn={photos:0,body:false,fuel:'',keys:false,out:false}; payState='idle';
+    CS='track'; toast(b.status==='planifie'?'Réservation programmée':'Demande envoyée aux chauffeurs proches'); renderClient();
+  },
+  'simulate-now':()=>{const b=bk(S.currentId);b.status='recherche';b.createdAt=now();renderClient()},
+  cancel:()=>{const b=bk(S.currentId);b.status='annule';S.currentId=null;CS='home';toast('Réservation annulée');renderClient()},
+  start:()=>{const b=bk(S.currentId);b.status='en_cours';b.startedAt=now();toast('Bonne route ! Votre trajet est suivi.');renderClient()},
+  finish:()=>{finishMission(bk(S.currentId));renderClient()},
+  share:()=>{const b=bk(S.currentId);const txt=`Suivez mon trajet KONDUI ${b.id} avec ${drv(b.driverId).name} (${b.from} → ${b.to||'mise à disposition'}).`;
+    try{navigator.clipboard.writeText(txt).then(()=>toast('Lien de suivi copié : envoyez-le à un proche'),()=>toast('Partage simulé : lien prêt à envoyer'))}catch(e){toast('Partage simulé : lien prêt à envoyer')}},
+  sos:()=>{const b=bk(S.currentId);S.complaints.push({id:'R-'+String(42+S.complaints.length).padStart(4,'0'),ref:b.id,client:b.client,type:'Alerte SOS',text:`Alerte déclenchée pendant le trajet (${b.from} → ${b.to||'mise à dispo.'}).`,status:'ouvert',at:now()});
+    modal={ic:'🚨',title:'Alerte envoyée',text:'Le centre d\'assistance KONDUI a reçu votre position et vous rappelle immédiatement. En cas de danger, appelez aussi la police (117).'};renderClient()},
+  'close-modal':()=>{modal=null;renderClient()},
+  info:el=>toast(el.dataset.m),
+  pay:()=>{
+    const b=bk(S.currentId);
+    const done=()=>{b.status='paye';payState='idle';const d=drv(b.driverId);d.earn+=b.price*(1-S.tariffs.commission/100);d.trips++;rateDraft={id:b.id,stars:0,comment:''};S.currentId=null;CS='rate';toast('Paiement confirmé');renderAll()};
+    if(b.pay==='cash'){done();return}
+    payState='pending';renderClient();setTimeout(done,2200);
+  },
+  star:el=>{rateDraft.stars=+el.dataset.v;renderClient()},
+  rate:()=>{const b=bk(rateDraft.id);b.rating=rateDraft.stars;b.comment=rateDraft.comment;CS='home';toast('Merci pour votre avis !');renderClient()},
+  complain:()=>{const b=bk(rateDraft.id);S.complaints.push({id:'R-'+String(42+S.complaints.length).padStart(4,'0'),ref:b.id,client:b.client,type:'Signalement',text:rateDraft.comment||'Problème signalé après la prestation.',status:'ouvert',at:now()});
+    modal={ic:'📨',title:'Signalement enregistré',text:'Notre service client vous contacte sous 24 h. Vous pouvez quand même noter la prestation.'};renderClient()},
+  // chauffeur
+  online:()=>{const me=drv(ME);me.online=!me.online;toast(me.online?'Vous êtes en ligne':'Vous êtes hors ligne');renderDriver()},
+  accept:el=>{const b=bk(el.dataset.id);if(b.status!=='recherche'){toast('Demande déjà prise');renderDriver();return}assign(b,ME);renderDriver()},
+  decline:el=>{declined.add(el.dataset.id);renderDriver()},
+  arrive:el=>{const b=bk(el.dataset.id),d=drv(ME);d.x=Q[b.from].x;d.y=Q[b.from].y;b.status='sur_place';toast('Client prévenu de votre arrivée');renderDriver()},
+  dstart:el=>{const b=bk(el.dataset.id);b.status='en_cours';b.startedAt=now();renderDriver()},
+  dfinish:el=>{finishMission(bk(el.dataset.id));renderDriver()},
+  // admin
+  atab:el=>{AT=el.dataset.k;renderAdmin()},
+  verify:el=>{const d=drv(el.dataset.id);d.verified=true;d.online=true;d.rating=5;toast(`${d.name} est vérifié et peut recevoir des demandes`);renderAdmin()},
+  suspend:el=>{const d=drv(el.dataset.id);d.suspended=!d.suspended;if(d.suspended)d.online=false;renderAdmin()},
+  resolve:el=>{S.complaints.find(c=>c.id===el.dataset.id).status='traité';renderAdmin()}
+};
+document.addEventListener('click',e=>{const el=e.target.closest('[data-act]');if(!el||el.disabled)return;const f=actions[el.dataset.act];if(f){e.preventDefault();f(el)}});
+document.addEventListener('change',e=>{
+  const el=e.target;
+  if(el.dataset.tariff!==undefined){S.tariffs[el.dataset.tariff]=Math.max(0,+el.value||0);toast('Tarif mis à jour');return}
+  const k=el.dataset.field; if(!k)return;
+  if(CS==='book'&&draft){draft[k]=el.value; if(['from','to'].includes(k))renderClient(); return}
+  if(k==='photos'){checkIn.photos=el.files?el.files.length:0;renderClient()}
+  else if(k==='body'||k==='keys'){checkIn[k]=el.checked;renderClient()}
+  else if(k==='fuel'){checkIn.fuel=el.value;renderClient()}
+  else if(k==='checkout'){checkIn.out=el.checked;renderClient()}
+});
+document.addEventListener('input',e=>{const k=e.target.dataset.field;if(!k)return;
+  if(CS==='book'&&draft&&['note','date','time'].includes(k))draft[k]=e.target.value;
+  if(CS==='rate'&&k==='comment')rateDraft.comment=e.target.value;});
+
+// ---------- Simulation (temps accéléré) ----------
+let lastSig='';
+function step(d,tx,ty,sp){const dx=tx-d.x,dy=ty-d.y,l=Math.hypot(dx,dy);if(l<=sp){d.x=tx;d.y=ty;return true}d.x+=dx/l*sp;d.y+=dy/l*sp;return false}
+function tick(){
+  const t=now();
+  S.bookings.forEach(b=>{
+    if(b.status==='recherche'){
+      const me=drv(ME), waitMe=me.online&&!declined.has(b.id)&&!S.bookings.some(x=>x.driverId===ME&&['en_route','sur_place','en_cours','termine'].includes(x.status));
+      const age=(t-b.createdAt)/1000;
+      if(age>(waitMe?15:6)){const d=nearestFree(b);if(d)assign(b,d.id);else if(waitMe&&age>15){declined.add(b.id)}}
+    }
+    const d=b.driverId&&drv(b.driverId); if(!d)return;
+    if(b.status==='en_route'){ if(step(d,Q[b.from].x,Q[b.from].y,2.2)){b.status='sur_place';if(b.mine)toast(`${d.name.split(' ')[0]} est arrivé`)} }
+    else if(b.status==='en_cours'){
+      if(b.formula==='A'||b.formula==='B'){ if(step(d,Q[b.to].x,Q[b.to].y,1.8)) finishMission(b) }
+      else { const dur=b.formula==='D'?18:(b.formula==='C'?(b.duration==='journee'?8:+b.duration):8)*4; b.progress=Math.min(1,(t-b.startedAt)/1000/dur);
+        if(b.formula!=='D'){d.x+=(Math.random()-.5)*2;d.y+=(Math.random()-.5)*2}
+        if(b.progress>=1) finishMission(b) }
+    }
+    else if(b.status==='sur_place' && !b.mine && (t-(b.arrivedAt||(b.arrivedAt=t)))>3000){b.status='en_cours';b.startedAt=t}
+    else if(b.status==='termine' && !b.mine && (t-(b.endAt||(b.endAt=t)))>2500){b.status='paye';d.earn+=b.price*(1-S.tariffs.commission/100);d.trips++}
+  });
+  // déplacements libres des chauffeurs disponibles
+  S.drivers.forEach(d=>{if(d.online&&!S.bookings.some(b=>b.driverId===d.id&&['en_route','en_cours'].includes(b.status))){d.x=Math.min(330,Math.max(60,d.x+(Math.random()-.5)*1.4));d.y=Math.min(225,Math.max(40,d.y+(Math.random()-.5)*1.4))}});
+  // mises à jour fines sans re-rendu
+  document.querySelectorAll('[data-drv]').forEach(g=>{const d=drv(g.dataset.drv);g.setAttribute('transform',`translate(${d.x.toFixed(1)} ${d.y.toFixed(1)})`)});
+  const cur=S.currentId&&bk(S.currentId);
+  if(cur){const p=$('#prog');if(p)p.style.width=Math.round((cur.progress||0)*100)+'%';const pt=$('#prog-t');if(pt)pt.textContent=progLabel(cur);
+    const eta=$('#eta');if(eta&&cur.driverId)eta.textContent=Math.max(1,Math.round(dist(drv(cur.driverId),Q[cur.from])/12))}
+  const cd=$('#cd');if(cd){const r=S.bookings.find(b=>b.status==='recherche'&&!declined.has(b.id));if(r)cd.textContent=Math.max(0,15-Math.floor((t-r.createdAt)/1000))+' s'}
+  // re-rendu quand un statut change
+  const sig=S.bookings.map(b=>b.id+b.status+(b.driverId||'')).join('|')+S.complaints.length+S.drivers.map(d=>d.online?1:0).join('');
+  if(sig!==lastSig){lastSig=sig;
+    const focused=document.activeElement&&['INPUT','TEXTAREA','SELECT'].includes(document.activeElement.tagName);
+    if(!(focused&&VIEW==='admin'&&AT==='tariffs')&&!(focused&&VIEW==='client'&&CS==='book'))renderAll();}
+  const ck=new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});$('#clock1').textContent=ck;$('#clock2').textContent=ck;
+}
+setInterval(tick,200);
+setInterval(()=>{if(VIEW==='admin'&&AT==='map')renderAdmin()},3000);
+
+// démarrage
+const h0=location.hash.slice(1); setView(['client','chauffeur','admin'].includes(h0)?h0:'client');
+</script>
+</body>
+</html>
